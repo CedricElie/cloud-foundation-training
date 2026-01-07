@@ -16,11 +16,13 @@
 
 variable "project_id" {
   description = "GCP Project ID"
+  type        = string
+  default     = "ck-learn-gcp-thales"
 }
 
 variable "region" {
   description = "GCP Region"
-  default     = "us-east1"
+  default     = "europe-west1"
 }
 
 variable "target_tags" {

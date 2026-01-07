@@ -45,8 +45,10 @@ resource "google_service_account" "instance_group" {
  * Reference - https://www.terraform.io/docs/providers/google/r/google_service_account_iam.html
  *
  */
-resource "" "service_account_user" {
-
+resource "google_service_account_iam_member" "service_account_user" {
+  service_account_id = google_service_account.instance_group.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:sa-cft-training@${var.project_id}.iam.gserviceaccount.com"
 }
 
 /**
@@ -67,7 +69,18 @@ resource "" "service_account_user" {
  *
  */
 module "instance_template" {
-
+  source = "terraform-google-modules/vm/google//modules/instance_template"
+  region = var.region
+  project_id = var.project_id
+  subnetwork = module.network.subnets_self_links[0]
+  source_image_family = "rocky-linux-9-optimized-gcp"
+  source_image_project = "rocky-linux-cloud"
+  startup_script = data.local_file.instance_startup_script.content
+  service_account = {
+    email = google_service_account.instance_group.email
+    scopes = ["cloud-platform"] 
+  }
+  tags = ["allow-load-balancer"]
 }
 
 /**
@@ -87,5 +100,16 @@ module "instance_template" {
  *
  */
 module "managed_instance_group" {
-
+  source = "terraform-google-modules/vm/google//modules/mig"
+  project_id = var.project_id
+  region = var.region
+  target_size = 2
+  hostname = "lab04-managed-instance"
+  instance_template = module.instance_template.self_link
+  named_ports = [
+    {
+      name = "http"
+      port = 80
+    }
+  ]
 }

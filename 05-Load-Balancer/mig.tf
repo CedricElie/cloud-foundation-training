@@ -32,11 +32,11 @@ resource "google_service_account_iam_member" "service_account_user" {
 
 module "instance_template" {
   source               = "terraform-google-modules/vm/google//modules/instance_template"
-  version              = "~> 8.0"
+  region               = var.region
   project_id           = module.project_iam_bindings.projects[0]
   subnetwork           = module.network.subnets_self_links[0]
-  source_image_family  = "debian-10"
-  source_image_project = "debian-cloud"
+  source_image_family  = "rocky-linux-9-optimized-gcp"
+  source_image_project = "rocky-linux-cloud"
   startup_script       = data.local_file.instance_startup_script.content
   service_account = {
     email  = google_service_account.instance_group.email
@@ -47,7 +47,6 @@ module "instance_template" {
 
 module "managed_instance_group" {
   source            = "terraform-google-modules/vm/google//modules/mig"
-  version           = "~> 8.0"
   project_id        = module.project_iam_bindings.projects[0]
   region            = var.region
   target_size       = 2
