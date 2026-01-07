@@ -46,5 +46,12 @@ terraform {
  *
  */
 module "project_iam_bindings" {
+  source  = "terraform-google-modules/iam/google//modules/projects_iam"
+
+  bindings = {
+    "roles/storage.admin" = [
+      "user:cedric.kouekam@thalesgroup.com"
+    ]
+  }
 
 }

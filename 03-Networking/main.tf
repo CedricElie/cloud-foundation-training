@@ -42,7 +42,18 @@ terraform {
  *
  */
 module "network" {
-
+  source = "terraform-google-modules/network/google"
+  version = "4.1.0"
+  project_id = var.project_id
+  network_name = "lab03-vpc"
+  routing_mode = "GLOBAL"
+  subnets = [
+    {
+      subnet_name           = "lab03-subnet-01"
+      subnet_ip             = "10.0.10.0/24"
+      subnet_region         = var.region
+    }
+  ]
 }
 
 /**
@@ -59,5 +70,11 @@ module "network" {
  *
  */
 module "cloud_nat" {
-
+  source = "terraform-google-modules/cloud-nat/google"
+  version = "2.1.0"
+  project_id = var.project_id
+  region = var.region
+  create_router = true
+  router = "lab03-router"
+  network = module.network.network_name
 }
